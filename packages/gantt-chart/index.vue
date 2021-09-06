@@ -64,7 +64,7 @@ import ganttView from './gantt-view.vue'
 import ganttSideItem from './gantt-side-item.vue'
 
 export default {
-  name: 'ganttChart',
+  name: 'ganttChartTime',
   components: { ganttHeader, ganttView, ganttSideItem },
   props: {
     // 渲染页面所需要的数据

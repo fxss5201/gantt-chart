@@ -1,15 +1,15 @@
 {
-  "name": "gantt-chart",
+  "name": "gantt-chart-time",
   "version": "0.1.0",
-  "description": "gantt-chart",
-  "main": "lib/gantt-chart.umd.min.js",
+  "description": "gantt-chart-time",
+  "main": "lib/gantt-chart-time.umd.min.js",
   "private": false,
   "author": "fanyushun",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name gantt-chart --dest lib packages/index.js"
+    "lib": "vue-cli-service build --target lib --name gantt-chart-time --dest lib packages/index.js"
   },
   "repository": {
     "type": "git",

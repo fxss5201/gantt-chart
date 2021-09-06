@@ -1,6 +1,6 @@
 <template>
   <div>
-    <gantt-chart :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange">
+    <gantt-chart-time :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange">
       <template v-slot:headerSelect>
         <div class="header-select">
           <div class="select-title">生产机台</div>
@@ -9,7 +9,7 @@
           </qb-select>
         </div>
       </template>
-    </gantt-chart>
+    </gantt-chart-time>
   </div>
 </template>
 
