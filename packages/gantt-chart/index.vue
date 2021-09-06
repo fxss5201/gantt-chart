@@ -81,7 +81,7 @@ export default {
     // 当前位置，用于显示红线
     currentTime: {
       type: String,
-      default: '2021-07-01'
+      default: ''
     },
     // 横向一共多少个颗粒度
     allColumnParticleSize: {
@@ -91,7 +91,7 @@ export default {
     // 横向开始日期，用于甘特图头部日期渲染
     startDate: {
       type: String,
-      default: '2021-06-01'
+      default: ''
     },
     // 当前任务完成程度的渲染方式，time：按照时间显示，done：按照完成程度展示（done / total）
     doneRenderMethods: {
@@ -293,12 +293,12 @@ export default {
     sizeChange (obj) {
       this.$emit('sizeChange', obj)
       this.isDebugger && console.log('sizeChange', obj)
-      this.$set(this.viewData[obj.outIndex].list, obj.innerIndex, obj)
+      this.$set(this.viewData[obj.rowIndex].list, obj.colIndex, obj)
       // 右移非最后一个，需要将其之后的开始时间和结束时间后移
       if (['right', 'all'].includes(obj.currentBtn)) {
-        if (obj.innerIndex + 1 < this.viewData[obj.outIndex].list.length) {
-          for (let index = obj.innerIndex + 1, len = this.viewData[obj.outIndex].list.length; index < len; index++) {
-            const element = this.viewData[obj.outIndex].list[index]
+        if (obj.colIndex + 1 < this.viewData[obj.rowIndex].list.length) {
+          for (let index = obj.colIndex + 1, len = this.viewData[obj.rowIndex].list.length; index < len; index++) {
+            const element = this.viewData[obj.rowIndex].list[index]
             element.start += obj.diffRange
             element.end += obj.diffRange
           }
@@ -316,8 +316,10 @@ export default {
             element.range = start === 0 ? element.end - start : element.end - start + 1
             // 第一次计算的标识，之后不再进行百分比转换长度计算，主要是为了按照已完成进度显示的时候，当前进行中的拖拽右侧按钮时，向左最多可以拖拽的颗粒度
             if ([0, 1].includes(element.doStatus)) {
-              if (!element.isComputedRightBtnCanLeftSize && element.isComputedRightBtnCanLeftSize !== 0) {
-                element.isComputedRightBtnCanLeftSize = ((element.done / element.total) * element.range).toFixed(2) * 1
+              if (this.doneRenderMethods === 'done') {
+                if (!element.isComputedRightBtnCanLeftSize && element.isComputedRightBtnCanLeftSize !== 0) {
+                  element.isComputedRightBtnCanLeftSize = ((element.done / element.total) * element.range).toFixed(2) * 1
+                }
               }
             }
             if (index > 0 && element.start - array[index - 1].end > 1) {

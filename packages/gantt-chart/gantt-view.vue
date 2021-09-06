@@ -199,8 +199,8 @@ export default {
             const innerElement = element.list[j]
             if (innerElement.colId === obj.colId) {
               this.$emit('sizeChange', {
-                outIndex: i,
-                innerIndex: j,
+                rowIndex: i,
+                colIndex: j,
                 ...obj
               })
               break

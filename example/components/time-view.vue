@@ -1,6 +1,6 @@
 <template>
   <div>
-    <gantt-chart :ganttData="ganttData" :isDebugger="true" @sizeChange="sizeChange">
+    <gantt-chart :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange">
       <template v-slot:headerSelect>
         <div class="header-select">
           <div class="select-title">生产机台</div>
@@ -120,7 +120,6 @@ export default {
               end: 53.5,
               name: 'fs11111：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
@@ -146,7 +145,6 @@ export default {
               end: 57,
               name: 'fs2222222：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
@@ -228,7 +226,6 @@ export default {
               end: 50,
               name: 'fsa1234354s：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
@@ -254,7 +251,6 @@ export default {
               end: 53,
               name: 'fs333333：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
@@ -280,7 +276,7 @@ export default {
           rowName: 'XS003',
           list: [
             {
-              rowId: '002',
+              rowId: '003',
               colId: 20,
               start: -3,
               end: 20,
@@ -305,7 +301,7 @@ export default {
               }
             },
             {
-              rowId: '002',
+              rowId: '003',
               colId: 21,
               start: 21,
               end: 40,
@@ -330,13 +326,12 @@ export default {
               }
             },
             {
-              rowId: '002',
+              rowId: '003',
               colId: 22,
               start: 41,
               end: 50,
               name: 'fsa1234354s：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
@@ -356,13 +351,12 @@ export default {
               }
             },
             {
-              rowId: '002',
+              rowId: '003',
               colId: 23,
               start: 51,
               end: 53,
               name: 'fs333333：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
-              isDoing: false,
               isShowDot: false,
               dot: {
                 mainColor: '#f00',
