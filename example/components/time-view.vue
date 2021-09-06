@@ -1,6 +1,6 @@
 <template>
   <div>
-    <gantt-chart :ganttData="ganttData">
+    <gantt-chart :ganttData="ganttData" :isDebugger="true" @sizeChange="sizeChange">
       <template v-slot:headerSelect>
         <div class="header-select">
           <div class="select-title">生产机台</div>
@@ -29,12 +29,8 @@ export default {
           label: '双皮奶'
         }
       ],
-      selectValue: '1'
-    }
-  },
-  computed: {
-    ganttData () {
-      return [
+      selectValue: '1',
+      ganttData: [
         {
           // 横向也就是一个任务对应的多个排期
           rowId: '001',
@@ -120,8 +116,8 @@ export default {
             {
               rowId: '001',
               colId: 14,
-              start: 51,
-              end: 53,
+              start: 52.5,
+              end: 53.5,
               name: 'fs11111：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
               isDoing: false,
@@ -146,7 +142,7 @@ export default {
             {
               rowId: '001',
               colId: 20,
-              start: 54,
+              start: 56,
               end: 57,
               name: 'fs2222222：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
@@ -394,8 +390,8 @@ export default {
             {
               rowId: '003',
               colId: 18,
-              start: 3,
-              end: 7,
+              start: -3,
+              end: 40,
               name: 'fsafsdasfs：上蜡',
               nameFormat: '{name} | {done}/{total}{unit}',
               isShowDot: true,
@@ -425,6 +421,8 @@ export default {
     console.log(this.timeRangesDay('2021-06-25', '2021-06-28'))
   },
   methods: {
+    sizeChange (obj) {
+    },
     // 两个时间段内包含的天数， timeRangesDay("2021-06-25", "2021-06-28") = 3
     timeRangesDay (time1, time2) {
       if (!time1 || !time2) return 0

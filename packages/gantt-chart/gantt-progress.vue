@@ -31,7 +31,7 @@
     </div>
 
     <!-- 左侧的拖拽图标 -->
-    <!-- <div @mouseenter="handleMouseEnter('left')" @mouseleave="handleMouseLeave('left')" @mousedown="onButtonDown" @touchstart="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-left-btn"></div> -->
+    <div v-show="isShowLeftBtn && btnShow" @mouseenter="handleMouseEnter('left')" @mouseleave="handleMouseLeave('left')" @mousedown="onButtonDown" @touchstart="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-left-btn"></div>
 
     <!-- 右侧的拖拽图标，如果是已过去的则不显示 -->
     <div v-show="isShowRightBtn && btnShow" @mouseenter="handleMouseEnter('right')" @mouseleave="handleMouseLeave('right')" @mousedown="onButtonDown" @touchstart="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-right-btn"></div>
@@ -65,6 +65,21 @@ export default {
     doneRenderMethods: {
       type: String,
       default: ''
+    },
+    // 在甘特图里，一个颗粒度要划分乘多少片段
+    slice: {
+      type: Number,
+      default: 24
+    },
+    // 在甘特图中，每次移动、拖动的时候
+    stepSlice: {
+      type: Number,
+      default: 24
+    },
+    // 是否开启数据打印，方便数据纠错
+    isDebugger: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -88,6 +103,10 @@ export default {
     }
   },
   computed: {
+    // 单个步骤的宽度
+    stepSliceWidth () {
+      return this.stepSlice === this.slice ? this.viewParticleSize.width : this.stepSlice * this.viewParticleSize.sliceWidth
+    },
     // 标题title
     progressTitle () {
       if (this.progressData.nameFormat) {
@@ -109,6 +128,10 @@ export default {
     isShowRightBtn () {
       return [0, 1].includes(this.progress.doStatus)
     },
+    // 是否显示左侧拖拽图标
+    isShowLeftBtn () {
+      return [1].includes(this.progress.doStatus)
+    },
     // 算出 progress 的初始长度
     oldProgressWidth () {
       return this.progress.range * this.viewParticleSize.width
@@ -122,9 +145,14 @@ export default {
         // 必须剩余的时间跨度
         let range = 1
         if (this.progress.doStatus === 0) {
-          // 当前任务完成程度的渲染方式，time、done都是按照最多可以挪到今天结束为止
-          const diff = this.progress.start < 0 ? 1 : 2
-          range = this.currentArea - (this.progress.start < 0 ? 0 : this.progress.start) + diff
+          // 当前任务完成程度的渲染方式，time按照最多可以挪到今天结束为止
+          if (this.doneRenderMethods === 'time') {
+            const diff = this.progress.start < 0 ? 1 : 2
+            range = this.currentArea - (this.progress.start < 0 ? 0 : this.progress.start) + diff
+          } else {
+            const diff = 0
+            range = (this.progress.start < 0 ? 0 : this.progress.start) + this.progress.isComputedRightBtnCanLeftSize - (this.progress.start < 0 ? 0 : this.progress.start) + diff
+          }
         }
         const canMoveRange = this.progress.range - range
         const canMoveX = -1 * canMoveRange * this.viewParticleSize.width
@@ -149,7 +177,7 @@ export default {
         range = start === 0 ? range : range + 1
         width = `${range * this.viewParticleSize.width + parseInt((this.hour / 24) * this.viewParticleSize.width, 10)}px`
       } else {
-        width = `${this.progress.done / this.progress.total * this.oldProgressWidth}px`
+        width = `${this.progress.isComputedRightBtnCanLeftSize * this.viewParticleSize.width}px`
       }
       return width
     }
@@ -157,14 +185,19 @@ export default {
   watch: {
     progressData: {
       handler (val) {
+        this.isDebugger && console.log('gantt-progress传入数据', JSON.parse(JSON.stringify(val)))
         this.progress = cloneDeep(val)
-        this.isHaveEllipsis(this.$refs.progressTitle)
+        setTimeout(() => {
+          this.isHaveEllipsis(this.$refs.progressTitle)
+        }, 100)
       },
       deep: true
     }
   },
   mounted () {
-    this.isHaveEllipsis(this.$refs.progressTitle)
+    setTimeout(() => {
+      this.isHaveEllipsis(this.$refs.progressTitle)
+    }, 100)
   },
   beforeDestroy () {
     if (this.timeout) clearTimeout(this.timeout)
@@ -234,25 +267,26 @@ export default {
         let diffRange = 0
         // 右侧拖拽数据计算实现
         if (this.currentBtn === 'right') {
-          const surplus = this.moveRightX % this.viewParticleSize.width
-          const half = this.viewParticleSize.width / 2
+          const surplus = this.moveRightX % this.stepSliceWidth
+          const half = this.stepSliceWidth / 2
           if (this.moveRightX > 0) {
-            diffRange = Math.floor(this.moveRightX / this.viewParticleSize.width)
+            diffRange = Math.floor(this.moveRightX / this.stepSliceWidth)
             if (surplus > half) {
               diffRange += 1
-              this.moveRightX = diffRange * this.viewParticleSize.width
+              this.moveRightX = diffRange * this.stepSliceWidth
             } else {
               this.moveRightX = this.moveRightX - surplus
             }
           } else {
-            diffRange = Math.ceil(this.moveRightX / this.viewParticleSize.width)
+            diffRange = Math.ceil(this.moveRightX / this.stepSliceWidth)
             if (surplus * -1 > half) {
               diffRange -= 1
-              this.moveRightX = diffRange * this.viewParticleSize.width
+              this.moveRightX = diffRange * this.stepSliceWidth
             } else {
               this.moveRightX = this.moveRightX - surplus
             }
           }
+          diffRange = diffRange * (this.stepSlice / this.slice)
           if (this.progress.doStatus === 0 && this.progress.end + diffRange < this.currentArea + 1) {
             this.progress.range = this.currentArea - this.progress.start + 2
             this.progress.end = this.currentArea + 2

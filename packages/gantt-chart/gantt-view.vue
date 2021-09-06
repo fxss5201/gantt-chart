@@ -3,15 +3,47 @@
     <div class="gantt-view-wrap" :style="{ width: `${allColumnWidth}px`, height: `${viewParticleSize.height * allViewData.length}px` }">
       <!-- 用于渲染周末灰色 -->
       <div class="gantt-view-background">
-        <div v-for="(item, index) in backgroundColumns" :key="`${item.day}-${item.week}-${index}`" class="background-column" :class="{ 'is-weekend': [0, 6].includes(item.week) }" :style="{ flexBasis: `${viewParticleSize.width}px` }"></div>
+        <div
+          v-for="(item, index) in backgroundColumns"
+          :key="`${item.day}-${item.week}-${index}`"
+          class="background-column"
+          :class="{ 'is-weekend': [0, 6].includes(item.week) }"
+          :style="{ flexBasis: `${viewParticleSize.width}px` }"></div>
       </div>
 
       <div class="gantt-view-content">
         <div v-for="item in allViewData" :key="item.rowId" class="gantt-row" :style="{ height: `${viewParticleSize.height}px` }">
-          <draggable v-if="isDraggable" :list="item.list" group="gantView" class="gantt-row-draggable" :move="draggableMove" @change="draggableChange">
-            <gantt-progress v-for="progress in item.list" :key="progress.colId" :progressData="progress" :viewParticleSize="viewParticleSize" :currentArea="currentArea" :doneRenderMethods="doneRenderMethods" @sizeChange="progresssizeChange"></gantt-progress>
+          <draggable
+            v-if="isDraggable"
+            :list="item.list"
+            group="gantView"
+            class="gantt-row-draggable"
+            :move="draggableMove"
+            @change="draggableChange">
+            <gantt-progress
+              v-for="progress in item.list"
+              :key="progress.colId"
+              :progressData="progress"
+              :viewParticleSize="viewParticleSize"
+              :currentArea="currentArea"
+              :doneRenderMethods="doneRenderMethods"
+              :slice="slice"
+              :stepSlice="stepSlice"
+              :isDebugger="isDebugger"
+              @sizeChange="progresssizeChange"></gantt-progress>
           </draggable>
-          <gantt-progress v-else v-for="progress in item.list" :key="progress.colId" :progressData="progress" :viewParticleSize="viewParticleSize" :currentArea="currentArea" :doneRenderMethods="doneRenderMethods" @sizeChange="progresssizeChange"></gantt-progress>
+          <gantt-progress
+            v-else
+            v-for="progress in item.list"
+            :key="progress.colId"
+            :progressData="progress"
+            :viewParticleSize="viewParticleSize"
+            :currentArea="currentArea"
+            :doneRenderMethods="doneRenderMethods"
+            :slice="slice"
+            :stepSlice="stepSlice"
+            :isDebugger="isDebugger"
+            @sizeChange="progresssizeChange"></gantt-progress>
         </div>
       </div>
 
@@ -79,6 +111,21 @@ export default {
     isDraggable: {
       type: Boolean,
       default: false
+    },
+    // 在甘特图里，一个颗粒度要划分乘多少片段
+    slice: {
+      type: Number,
+      default: 24
+    },
+    // 在甘特图中，每次移动、拖动的时候
+    stepSlice: {
+      type: Number,
+      default: 24
+    },
+    // 是否开启数据打印，方便数据纠错
+    isDebugger: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -107,6 +154,7 @@ export default {
   watch: {
     viewData: {
       handler (val) {
+        this.isDebugger && console.log('gantt-view传入参数', JSON.parse(JSON.stringify(val)))
         this.allViewData = cloneDeep(val)
       },
       deep: true,
@@ -128,9 +176,9 @@ export default {
   methods: {
     // 将今天的滚动到可视区域
     scrollCurrentInview () {
-      const left = Math.floor(this.defaultColumnParticleSize / 3)
+      const left = (this.defaultColumnParticleSize / 3).toFixed(2) * 1
       const range = this.currentArea / this.defaultColumnParticleSize
-      this.$refs.ganttView.scrollLeft = (Math.floor((range > 0 ? range : 0) * this.defaultColumnParticleSize) - left) * this.viewParticleSize.width
+      this.$refs.ganttView.scrollLeft = (((range > 0 ? range : 0) * this.defaultColumnParticleSize).toFixed(2) * 1 - left) * this.viewParticleSize.width
     },
     scrollView (val) {
       this.$refs.ganttView.scrollLeft = this.scrollInfo.scrollLeft + val
@@ -150,11 +198,10 @@ export default {
           for (let j = 0, innerLen = element.list.length; j < innerLen; j++) {
             const innerElement = element.list[j]
             if (innerElement.colId === obj.colId) {
-              this.$set(this.allViewData[i].list, j, obj)
               this.$emit('sizeChange', {
                 outIndex: i,
-                index: j,
-                obj
+                innerIndex: j,
+                ...obj
               })
               break
             }

@@ -139,7 +139,7 @@ export default {
     scrollView (val) {
       this.$emit('scrollView', {
         direction: val,
-        scrollViewRange: Math.floor(this.scrollViewRange / 2)
+        scrollViewRange: (this.scrollViewRange / 2).toFixed(2) * 1
       })
     }
   }

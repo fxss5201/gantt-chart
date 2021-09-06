@@ -5,7 +5,16 @@
         <slot name="headerSelect"></slot>
       </div>
       <div class="header-content">
-        <gantt-header :viewDateData="viewDateData" :currentTimeObj="currentTimeObj" :viewParticleSize="viewParticleSize" :allColumnWidth="allColumnWidth" :scrollInfo="scrollInfo" :scrollViewRange="scrollViewRange" @scrollCurrentInview="scrollCurrentInview" @scrollViewRangeChange="scrollViewRangeChange" @scrollView="scrollView"></gantt-header>
+        <gantt-header
+          :viewDateData="viewDateData"
+          :currentTimeObj="currentTimeObj"
+          :viewParticleSize="viewParticleSize"
+          :allColumnWidth="allColumnWidth"
+          :scrollInfo="scrollInfo"
+          :scrollViewRange="scrollViewRange"
+          @scrollCurrentInview="scrollCurrentInview"
+          @scrollViewRangeChange="scrollViewRangeChange"
+          @scrollView="scrollView"></gantt-header>
       </div>
     </div>
     <div class="gantt-body clearfix">
@@ -15,7 +24,25 @@
         </div>
       </div>
       <div class="body-content" ref="bodyContent" id="ganttViewBox">
-        <gantt-view ref="ganttView" :isDraggable="isDraggable" :viewDateData="viewDateData" :currentTimeObj="currentTimeObj" :viewParticleSize="viewParticleSize" :allColumnWidth="allColumnWidth" :scrollInfo="scrollInfo" :viewData="viewData" :currentArea="currentArea" :doneRenderMethods="doneRenderMethods" @scroll="changeScrollInfo" @sizeChange="sizeChange" :defaultColumnParticleSize="defaultColumnParticleSize" @viewChange="viewChange" @dragChange="dragChange"></gantt-view>
+        <gantt-view
+          ref="ganttView"
+          :isDraggable="isDraggable"
+          :viewDateData="viewDateData"
+          :currentTimeObj="currentTimeObj"
+          :viewParticleSize="viewParticleSize"
+          :allColumnWidth="allColumnWidth"
+          :scrollInfo="scrollInfo"
+          :viewData="viewData"
+          :currentArea="currentArea"
+          :doneRenderMethods="doneRenderMethods"
+          :defaultColumnParticleSize="defaultColumnParticleSize"
+          :slice="slice"
+          :stepSlice="stepSlice"
+          :isDebugger="isDebugger"
+          @scroll="changeScrollInfo"
+          @sizeChange="sizeChange"
+          @viewChange="viewChange"
+          @dragChange="dragChange"></gantt-view>
       </div>
     </div>
     <div class="gantt-chart-control">
@@ -80,6 +107,16 @@ export default {
     slice: {
       type: Number,
       default: 24
+    },
+    // 在甘特图中，每次移动、拖动的时候
+    stepSlice: {
+      type: Number,
+      default: 12
+    },
+    // 是否开启数据打印，方便数据纠错
+    isDebugger: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -138,9 +175,16 @@ export default {
         // 避免内部数据变更影响外部数据，所以深拷贝
         this.currentArea = this.timeRangesDay(this.startDate, this.currentTime)
         const data = cloneDeep(val)
+        this.isDebugger && console.log('index传入参数', JSON.parse(JSON.stringify(val)))
         this.viewData = this.createViewData(data)
       },
       immediate: true,
+      deep: true
+    },
+    viewData: {
+      handler (val) {
+        this.viewData = this.createViewData(val)
+      },
       deep: true
     },
     scrollInfo: {
@@ -162,8 +206,8 @@ export default {
   },
   mounted () {
     const ganttClientWidth = this.$refs.bodyContent.clientWidth
-    this.viewParticleSize.width = Math.floor(ganttClientWidth / this.defaultColumnParticleSize)
-    this.maxColumnParticleSize = Math.floor(ganttClientWidth / this.viewParticleSize.minWidth)
+    this.viewParticleSize.width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
+    this.maxColumnParticleSize = (ganttClientWidth / this.viewParticleSize.minWidth).toFixed(2) * 1
 
     this.mousewheelFunction = (event) => {
       if (event.ctrlKey) {
@@ -210,7 +254,7 @@ export default {
     // 计算颗粒度的宽度
     computedViewParticleSizeWidth () {
       const ganttClientWidth = this.$refs.bodyContent.clientWidth
-      this.viewParticleSize.width = Math.floor(ganttClientWidth / this.defaultColumnParticleSize)
+      this.viewParticleSize.width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
     },
 
     viewChange (obj) {
@@ -244,11 +288,20 @@ export default {
 
     // 甘特图修改之后，从内部往外触发的事件
     dragChange (obj) {
-      console.log('dragChange', obj)
+      this.isDebugger && console.log('dragChange', obj)
     },
     sizeChange (obj) {
-      console.log('sizeChange', obj)
-      this.$set(this.viewData[obj.outIndex].list, obj.index, obj.obj)
+      this.$emit('sizeChange', obj)
+      this.isDebugger && console.log('sizeChange', obj)
+      this.$set(this.viewData[obj.outIndex].list, obj.innerIndex, obj)
+      // 非最后一个，需要将其之后的开始时间和结束时间后移
+      if (obj.innerIndex + 1 < this.viewData[obj.outIndex].list.length) {
+        for (let index = obj.innerIndex + 1, len = this.viewData[obj.outIndex].list.length; index < len; index++) {
+          const element = this.viewData[obj.outIndex].list[index]
+          element.start += obj.diffRange
+          element.end += obj.diffRange
+        }
+      }
     },
 
     // 生成渲染图所需要的数据
@@ -259,6 +312,12 @@ export default {
             let { start } = element
             if (start < 0) start = 0
             element.range = start === 0 ? element.end - start : element.end - start + 1
+            // 第一次计算的标识，之后不再进行百分比转换长度计算，主要是为了按照已完成进度显示的时候，当前进行中的拖拽右侧按钮时，向左最多可以拖拽的颗粒度
+            if ([0, 1].includes(element.doStatus)) {
+              if (!element.isComputedRightBtnCanLeftSize && element.isComputedRightBtnCanLeftSize !== 0) {
+                element.isComputedRightBtnCanLeftSize = ((element.done / element.total) * element.range).toFixed(2) * 1
+              }
+            }
             if (index > 0 && element.start - array[index - 1].end > 1) {
               element.offset = element.start - array[index - 1].end - 1
             } else if (index === 0 && element.start > 0) {
@@ -267,7 +326,7 @@ export default {
           })
         }
       })
-      console.log(val)
+      this.isDebugger && console.log('index生成渲染图所需要的数据', JSON.parse(JSON.stringify(val)))
       return val
     },
 
@@ -282,7 +341,7 @@ export default {
       const date1 = time1.replace(/-/g, '/').split(' ')[0]
       const date2 = time2.replace(/-/g, '/').split(' ')[0]
       const oneDay = 1000 * 60 * 60 * 24
-      return Math.floor((new Date(date2).getTime() - new Date(date1).getTime()) / oneDay)
+      return ((new Date(date2).getTime() - new Date(date1).getTime()) / oneDay).toFixed(2) * 1
     },
 
     // 解析时间，返回时间对象
