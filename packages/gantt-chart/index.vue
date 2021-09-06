@@ -111,7 +111,7 @@ export default {
     // 在甘特图中，每次移动、拖动的时候
     stepSlice: {
       type: Number,
-      default: 12
+      default: 24
     },
     // 是否开启数据打印，方便数据纠错
     isDebugger: {
@@ -294,12 +294,14 @@ export default {
       this.$emit('sizeChange', obj)
       this.isDebugger && console.log('sizeChange', obj)
       this.$set(this.viewData[obj.outIndex].list, obj.innerIndex, obj)
-      // 非最后一个，需要将其之后的开始时间和结束时间后移
-      if (obj.innerIndex + 1 < this.viewData[obj.outIndex].list.length) {
-        for (let index = obj.innerIndex + 1, len = this.viewData[obj.outIndex].list.length; index < len; index++) {
-          const element = this.viewData[obj.outIndex].list[index]
-          element.start += obj.diffRange
-          element.end += obj.diffRange
+      // 右移非最后一个，需要将其之后的开始时间和结束时间后移
+      if (['right', 'all'].includes(obj.currentBtn)) {
+        if (obj.innerIndex + 1 < this.viewData[obj.outIndex].list.length) {
+          for (let index = obj.innerIndex + 1, len = this.viewData[obj.outIndex].list.length; index < len; index++) {
+            const element = this.viewData[obj.outIndex].list[index]
+            element.start += obj.diffRange
+            element.end += obj.diffRange
+          }
         }
       }
     },

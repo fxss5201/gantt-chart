@@ -208,7 +208,7 @@ export default {
                 mainColor: '#f00',
                 secondaryColor: '#0f0'
               },
-              total: 400,
+              total: 900,
               done: 300,
               unit: 'kg',
               doStatus: 0,

@@ -30,7 +30,7 @@
               :slice="slice"
               :stepSlice="stepSlice"
               :isDebugger="isDebugger"
-              @sizeChange="progresssizeChange"></gantt-progress>
+              @sizeChange="sizeChange"></gantt-progress>
           </draggable>
           <gantt-progress
             v-else
@@ -43,7 +43,7 @@
             :slice="slice"
             :stepSlice="stepSlice"
             :isDebugger="isDebugger"
-            @sizeChange="progresssizeChange"></gantt-progress>
+            @sizeChange="sizeChange"></gantt-progress>
         </div>
       </div>
 
@@ -191,7 +191,7 @@ export default {
         scrollTop: this.$refs.ganttView.scrollTop
       })
     },
-    progresssizeChange (obj) {
+    sizeChange (obj) {
       for (let i = 0, len = this.allViewData.length; i < len; i++) {
         const element = this.allViewData[i]
         if (element.rowId === obj.rowId) {

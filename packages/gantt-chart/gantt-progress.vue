@@ -14,6 +14,7 @@
       borderColor: progress.style.borderColor,
       backgroundColor: progress.style.backgroundColor
     }"
+    :draggable="progressDraggable"
     @mouseenter="progressMouseEnter"
     @mouseleave="progressMouseLeave">
     <template v-if="isNotNowDoing">
@@ -31,10 +32,15 @@
     </div>
 
     <!-- 左侧的拖拽图标 -->
-    <div v-show="isShowLeftBtn && btnShow" @mouseenter="handleMouseEnter('left')" @mouseleave="handleMouseLeave('left')" @mousedown="onButtonDown" @touchstart="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-left-btn"></div>
+    <div v-show="isShowLeftBtn && btnShow" @mouseenter.stop="handleMouseEnter('left')" @mouseleave.stop="handleMouseLeave('left')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-left-btn"></div>
 
     <!-- 右侧的拖拽图标，如果是已过去的则不显示 -->
-    <div v-show="isShowRightBtn && btnShow" @mouseenter="handleMouseEnter('right')" @mouseleave="handleMouseLeave('right')" @mousedown="onButtonDown" @touchstart="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-right-btn"></div>
+    <div v-show="isShowRightBtn && btnShow" @mouseenter.stop="handleMouseEnter('right')" @mouseleave.stop="handleMouseLeave('right')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-right-btn"></div>
+
+    <!-- 整体拖拽的按钮 -->
+    <div v-show="isShowAllBtn && btnShow" class="arrow-all-btn" @mouseenter.stop="handleMouseEnter('all')" @mouseleave.stop="handleMouseLeave('all')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown">
+      <i class="qb-icon-rank"></i>
+    </div>
   </div>
 </template>
 
@@ -91,10 +97,12 @@ export default {
 
       // 拖动的距离
       moveRightX: 0,
-      moveleftX: 0,
+      moveLeftX: 0,
+      moveAllX: 0,
 
       hovering: false,
       dragging: false,
+      progressDraggable: false,
       startX: 0,
       currentX: 0,
       currentBtn: 'right',
@@ -132,9 +140,36 @@ export default {
     isShowLeftBtn () {
       return [1].includes(this.progress.doStatus)
     },
+    // 是否显示整体拖拽图标
+    isShowAllBtn () {
+      return [1].includes(this.progress.doStatus)
+    },
     // 算出 progress 的初始长度
     oldProgressWidth () {
       return this.progress.range * this.viewParticleSize.width
+    },
+    /**
+     * 整体拖拽按钮可向左移动的最大距离，由于向左移动得到的距离是负的，所以可以认为是可移动的最小距离
+     */
+    allBtnCanMoveXMin () {
+      return this.progress.offset * this.viewParticleSize.width * -1
+    },
+    /**
+     * 左侧拖拽按钮可向左向右的最大距离
+     */
+    leftBtnCanMove () {
+      const res = [0, 0]
+      if (this.isShowLeftBtn) {
+        if (this.progress.offset) {
+          const length = this.progress.offset * this.viewParticleSize.width * -1
+          res[0] = length
+        }
+        if (this.progress.range) {
+          const length = (this.progress.range - 1) * this.viewParticleSize.width
+          res[1] = length
+        }
+      }
+      return res
     },
     /**
      * 右侧拖拽按钮可向左移动的最大距离，由于向左移动得到的距离是负的，所以可以认为是可移动的最小距离
@@ -162,11 +197,11 @@ export default {
     },
     // 包含移动距离的 progress 长度
     progressWidth () {
-      return `${this.oldProgressWidth + this.moveRightX}px`
+      return `${this.oldProgressWidth + this.moveRightX - this.moveLeftX}px`
     },
     // progress 的左侧空白宽度
     offsetWidth () {
-      return this.progress.offset ? `${this.progress.offset * this.viewParticleSize.width}px` : 0
+      return this.progress.offset ? `${this.progress.offset * this.viewParticleSize.width + this.moveAllX + this.moveLeftX}px` : `${this.moveAllX + this.moveLeftX}px`
     },
     // 已完成的宽度
     doneWidth () {
@@ -187,7 +222,7 @@ export default {
       handler (val) {
         this.isDebugger && console.log('gantt-progress传入数据', JSON.parse(JSON.stringify(val)))
         this.progress = cloneDeep(val)
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
           this.isHaveEllipsis(this.$refs.progressTitle)
         }, 100)
       },
@@ -195,7 +230,7 @@ export default {
     }
   },
   mounted () {
-    setTimeout(() => {
+    this.timeout = setTimeout(() => {
       this.isHaveEllipsis(this.$refs.progressTitle)
     }, 100)
   },
@@ -229,6 +264,9 @@ export default {
     onButtonDown (event) {
       event.preventDefault()
       this.onDragStart(event)
+      if (this.currentBtn === 'all') {
+        this.progressDraggable = true
+      }
       window.addEventListener('mousemove', this.onDragging)
       window.addEventListener('touchmove', this.onDragging)
       window.addEventListener('mouseup', this.onDragEnd)
@@ -256,8 +294,14 @@ export default {
         diff = this.currentX - this.startX
         if (this.currentBtn === 'right') {
           this.moveRightX = Math.max(this.rightBtnCanMoveXMin, diff)
-        } else {
-          this.moveLeftX = diff
+        } else if (this.currentBtn === 'left') {
+          if (diff > 0) {
+            this.moveLeftX = diff > this.leftBtnCanMove[1] ? this.leftBtnCanMove[1] : diff
+          } else {
+            this.moveLeftX = diff < this.leftBtnCanMove[0] ? this.leftBtnCanMove[0] : diff
+          }
+        } else if (this.currentBtn === 'all') {
+          this.moveAllX = Math.max(this.allBtnCanMoveXMin, diff)
         }
       }
     },
@@ -287,13 +331,64 @@ export default {
             }
           }
           diffRange = diffRange * (this.stepSlice / this.slice)
-          if (this.progress.doStatus === 0 && this.progress.end + diffRange < this.currentArea + 1) {
-            this.progress.range = this.currentArea - this.progress.start + 2
-            this.progress.end = this.currentArea + 2
+          if (this.progress.doStatus === 0) {
+            if (this.doneRenderMethods === 'time' && this.progress.end + diffRange < this.currentArea + 1) {
+              this.progress.range = this.currentArea - this.progress.start + 2
+              this.progress.end = this.currentArea + 2
+            } else {
+              this.progress.range += diffRange
+              this.progress.end += diffRange
+            }
           } else {
             this.progress.range += diffRange
             this.progress.end += diffRange
           }
+        } else if (this.currentBtn === 'left') {
+          const surplus = this.moveLeftX % this.stepSliceWidth
+          const half = this.stepSliceWidth / 2
+          if (this.moveLeftX > 0) {
+            diffRange = Math.floor(this.moveLeftX / this.stepSliceWidth)
+            if (surplus > half) {
+              diffRange += 1
+              this.moveLeftX = diffRange * this.stepSliceWidth
+            } else {
+              this.moveLeftX = this.moveLeftX - surplus
+            }
+          } else {
+            diffRange = Math.ceil(this.moveLeftX / this.stepSliceWidth)
+            if (surplus * -1 > half) {
+              diffRange -= 1
+              this.moveLeftX = diffRange * this.stepSliceWidth
+            } else {
+              this.moveLeftX = this.moveLeftX - surplus
+            }
+          }
+          diffRange = diffRange * (this.stepSlice / this.slice)
+          this.progress.range -= diffRange
+          this.progress.start += diffRange
+        } else if (this.currentBtn === 'all') {
+          const surplus = this.moveAllX % this.stepSliceWidth
+          const half = this.stepSliceWidth / 2
+          if (this.moveAllX > 0) {
+            diffRange = Math.floor(this.moveAllX / this.stepSliceWidth)
+            if (surplus > half) {
+              diffRange += 1
+              this.moveAllX = diffRange * this.stepSliceWidth
+            } else {
+              this.moveAllX = this.moveAllX - surplus
+            }
+          } else {
+            diffRange = Math.ceil(this.moveAllX / this.stepSliceWidth)
+            if (surplus * -1 > half) {
+              diffRange -= 1
+              this.moveAllX = diffRange * this.stepSliceWidth
+            } else {
+              this.moveAllX = this.moveAllX - surplus
+            }
+          }
+          diffRange = diffRange * (this.stepSlice / this.slice)
+          this.progress.start += diffRange
+          this.progress.end += diffRange
         }
         this.$emit('sizeChange', {
           ...this.progress,
@@ -303,6 +398,8 @@ export default {
         })
         this.moveRightX = 0
         this.moveLeftX = 0
+        this.moveAllX = 0
+        this.progressDraggable = false
         window.removeEventListener('mousemove', this.onDragging)
         window.removeEventListener('touchmove', this.onDragging)
         window.removeEventListener('mouseup', this.onDragEnd)
@@ -323,12 +420,6 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  &.is-in-future {
-    cursor: move;
-    .gantt-progress-title {
-      cursor: move;
-    }
-  }
   &.no-left-radius {
     border-left: 0;
     border-top-left-radius: 0;
@@ -391,6 +482,22 @@ export default {
   }
   .arrow-right-btn {
     right: 0px;
+  }
+  .arrow-all-btn {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    z-index: 100;
+    margin-left: -10px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 16px;
+    cursor: move;
+    background-color: #fff;
+    border: 1px solid #8c8d90;
+    border-radius: 3px;
   }
 }
 </style>
