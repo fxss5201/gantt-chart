@@ -38,7 +38,7 @@
     <div v-show="isShowRightBtn && btnShow" @mouseenter.stop="handleMouseEnter('right')" @mouseleave.stop="handleMouseLeave('right')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-right-btn"></div>
 
     <!-- 整体拖拽的按钮 -->
-    <div v-show="isShowAllBtn && btnShow" class="arrow-all-btn" @mouseenter.stop="handleMouseEnter('all')" @mouseleave.stop="handleMouseLeave('all')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown">
+    <div v-show="isShowAllBtn && btnShow" @mouseenter.stop="handleMouseEnter('all')" @mouseleave.stop="handleMouseLeave('all')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown" class="arrow-all-btn">
       <i class="qb-icon-rank"></i>
     </div>
   </div>
@@ -152,7 +152,7 @@ export default {
      * 整体拖拽按钮可向左移动的最大距离，由于向左移动得到的距离是负的，所以可以认为是可移动的最小距离
      */
     allBtnCanMoveXMin () {
-      return this.progress.offset * this.viewParticleSize.width * -1
+      return this.progress.offset ? this.progress.offset * this.viewParticleSize.width * -1 : 0
     },
     /**
      * 左侧拖拽按钮可向左向右的最大距离
