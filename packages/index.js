@@ -1,9 +1,9 @@
 // 导入单个组件
-import ganttChart from './gantt-chart/index.js'
+import ganttChartTime from './gantt-chart-time/index.js'
 
 // 以数组的结构保存组件，便于遍历
 const components = [
-  ganttChart
+  ganttChartTime
 ]
 
 // 定义 install 方法

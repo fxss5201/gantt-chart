@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import ganttChartTime from './../packages/gantt-chart/index.js'
+import ganttChartTime from '../packages/gantt-chart-time/index.js'
 import QBUI from 'qb-ui'
 import 'qb-ui/lib/theme-chalk/index.css'
 
