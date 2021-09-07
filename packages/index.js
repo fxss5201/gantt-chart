@@ -24,5 +24,5 @@ export default {
   // 导出的对象必须具备一个 install 方法
   install,
   // 组件列表
-  ...components
+  ganttChartTime
 }
