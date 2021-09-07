@@ -1,6 +1,6 @@
 {
   "name": "gantt-chart-time",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "gantt-chart-time",
   "main": "lib/gantt-chart-time.umd.min.js",
   "private": false,
