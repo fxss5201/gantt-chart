@@ -2,6 +2,13 @@
 
 甘特图，现支持单个任务的左右拖拽延长时间，或者是整体平移。
 
+## 使用
+
+```js
+import { ganttChartTime } from 'gantt-chart-time'
+Vue.use(ganttChartTime)
+```
+
 ## props
 
 |参数|说明|类型|可选值|默认值|
@@ -128,5 +135,3 @@ npm run lint
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
