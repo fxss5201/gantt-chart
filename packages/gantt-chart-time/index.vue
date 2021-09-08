@@ -239,6 +239,7 @@ export default {
       if (!this.mousewheelFunction) {
         this.mousewheelFunction = (event) => {
           if (event.ctrlKey) {
+            event.preventDefault()
             const delta = event.wheelDelta ? event.wheelDelta / 120 : -event.detail / 3
             if (delta > 0) {
               this.viewScale('add')
@@ -246,7 +247,6 @@ export default {
               this.viewScale('reduce')
             }
           }
-          event.preventDefault()
         }
         // 添加按住 ctrl 键缩放
         document.querySelector('#ganttViewBox').addEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
