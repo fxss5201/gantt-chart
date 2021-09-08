@@ -30,7 +30,8 @@
               :slice="slice"
               :stepSlice="stepSlice"
               :isDebugger="isDebugger"
-              @sizeChange="sizeChange"></gantt-progress>
+              @sizeChange="sizeChange"
+              @progressClick="progressClick"></gantt-progress>
           </draggable>
           <gantt-progress
             v-else
@@ -43,7 +44,8 @@
             :slice="slice"
             :stepSlice="stepSlice"
             :isDebugger="isDebugger"
-            @sizeChange="sizeChange"></gantt-progress>
+            @sizeChange="sizeChange"
+            @progressClick="progressClick"></gantt-progress>
         </div>
       </div>
 
@@ -209,6 +211,9 @@ export default {
           break
         }
       }
+    },
+    progressClick (obj) {
+      this.$emit('progressClick', obj)
     },
 
     // 拖拽移动判断，已结束和当前进行中的不可拖拽交换顺序

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <gantt-chart-time :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange">
+    <gantt-chart-time :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange" @progressClick="progressClick">
       <template v-slot:headerSelect>
         <div class="header-select">
           <div class="select-title">生产机台</div>
@@ -30,6 +30,7 @@ export default {
         }
       ],
       selectValue: '1',
+      // ganttData: []
       ganttData: [
         {
           // 横向也就是一个任务对应的多个排期
@@ -417,6 +418,7 @@ export default {
   methods: {
     sizeChange (obj) {
     },
+    progressClick () {},
     // 两个时间段内包含的天数， timeRangesDay("2021-06-25", "2021-06-28") = 3
     timeRangesDay (time1, time2) {
       if (!time1 || !time2) return 0

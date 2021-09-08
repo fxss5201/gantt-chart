@@ -16,7 +16,8 @@
     }"
     :draggable="progressDraggable"
     @mouseenter="progressMouseEnter"
-    @mouseleave="progressMouseLeave">
+    @mouseleave="progressMouseLeave"
+    @click="progressClick">
     <template v-if="isNotNowDoing">
       <div v-if="progress.isShowDot && progress.dot" class="gantt-progress-dot" :style="{ borderColor: progress.dot.secondaryColor || progress.dot.mainColor, backgroundColor: progress.dot.mainColor }"></div>
       <qb-tooltip effect="light" :content="progressTitle" placement="top-start" :disabled="progressTitleDisabled">
@@ -238,6 +239,9 @@ export default {
     if (this.timeout) clearTimeout(this.timeout)
   },
   methods: {
+    progressClick () {
+      this.$emit('progressClick', this.progressData)
+    },
     progressMouseEnter () {
       this.btnShow = true
     },

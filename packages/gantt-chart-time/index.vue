@@ -41,6 +41,7 @@
           :isDebugger="isDebugger"
           @scroll="changeScrollInfo"
           @sizeChange="sizeChange"
+          @progressClick="progressClick"
           @viewChange="viewChange"
           @dragChange="dragChange"></gantt-view>
       </div>
@@ -69,6 +70,7 @@ export default {
   props: {
     // 渲染页面所需要的数据
     ganttData: {
+      required: true,
       type: Array,
       default () {
         return []
@@ -80,6 +82,7 @@ export default {
     },
     // 当前位置，用于显示红线
     currentTime: {
+      required: true,
       type: String,
       default: ''
     },
@@ -90,6 +93,7 @@ export default {
     },
     // 横向开始日期，用于甘特图头部日期渲染
     startDate: {
+      required: true,
       type: String,
       default: ''
     },
@@ -148,7 +152,8 @@ export default {
       scrollViewRange: 14,
 
       isFirefox: typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
-      mousewheelFunction: null
+      mousewheelFunction: null,
+      ctrlScale: false
     }
   },
   computed: {
@@ -214,33 +219,41 @@ export default {
     if (this.initComputed) {
       this.computedViewParticleSize()
     }
-
-    this.mousewheelFunction = (event) => {
-      if (event.ctrlKey) {
-        const delta = event.wheelDelta ? event.wheelDelta / 120 : -event.detail / 3
-        if (delta > 0) {
-          this.viewScale('add')
-        } else {
-          this.viewScale('reduce')
-        }
-      }
-      event.preventDefault()
-    }
-    // 添加按住 ctrl 键缩放
-    document.querySelector('#ganttViewBox').addEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
     window.addEventListener('resize', this.computedViewParticleSize, false)
   },
   beforeDestroy () {
-    document.querySelector('#ganttViewBox').removeEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
+    this.ctrlScale && document.querySelector('#ganttViewBox').removeEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
+    this.ctrlScale = false
     window.removeEventListener('resize', this.computedViewParticleSize, false)
   },
   methods: {
     // 计算视图颗粒度
     computedViewParticleSize () {
-      const ganttClientWidth = this.$refs.bodyContent.clientWidth
-      const width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
-      this.viewParticleSize.width = width > this.viewParticleSize.minWidth ? width : this.viewParticleSize.minWidth
-      this.maxColumnParticleSize = (ganttClientWidth / this.viewParticleSize.minWidth).toFixed(2) * 1
+      if (this.$refs.bodyContent) {
+        const ganttClientWidth = this.$refs.bodyContent.clientWidth
+        const width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
+        this.viewParticleSize.width = width > this.viewParticleSize.minWidth ? width : this.viewParticleSize.minWidth
+        this.maxColumnParticleSize = (ganttClientWidth / this.viewParticleSize.minWidth).toFixed(2) * 1
+      }
+    },
+    // 绑定 按住 ctrl 键鼠标滚轮缩放
+    bindMousewheelScale () {
+      this.ctrlScale = true
+      if (!this.mousewheelFunction) {
+        this.mousewheelFunction = (event) => {
+          if (event.ctrlKey) {
+            const delta = event.wheelDelta ? event.wheelDelta / 120 : -event.detail / 3
+            if (delta > 0) {
+              this.viewScale('add')
+            } else {
+              this.viewScale('reduce')
+            }
+          }
+          event.preventDefault()
+        }
+        // 添加按住 ctrl 键缩放
+        document.querySelector('#ganttViewBox').addEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
+      }
     },
     // 界面缩放
     viewScale (val) {
@@ -319,6 +332,10 @@ export default {
           }
         }
       }
+    },
+    progressClick (obj) {
+      this.$emit('progressClick', obj)
+      this.isDebugger && console.log('progressClick', obj)
     },
 
     // 生成渲染图所需要的数据

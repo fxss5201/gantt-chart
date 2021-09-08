@@ -78,6 +78,7 @@ ganttData 实际上是一个二维数组，第一层是以行划分，行里面�
 |事件名称|说明|回调参数|
 |---|---|---|
 |sizeChange|单个任务的左右拖拽延长时间，或者是整体平移均会触发 sizeChange 事件|回调参数具体如下|
+|progressClick|单个任务的点击事件|参数和 ganttData 中每个任务的数据结构一致|
 
 ### sizeChange 回调参数
 
