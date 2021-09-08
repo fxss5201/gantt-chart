@@ -24,6 +24,7 @@ Vue.use(ganttChartTime)
 |slice|在甘特图里，一个颗粒度要划分乘多少片段，默认划分为24段，对应24小时|Number|--|24|
 |stepSlice|在甘特图中，每次移动、拖动的时候占用多少片段|Number|--|24|
 |isDebugger|是否开启数据打印，方便数据纠错|Boolean|--|false|
+|initComputed|初始化的时候是否计算视图颗粒度的大小|Boolean|--|true|
 
 ### ganttData 中的参数对应的含义
 
@@ -65,6 +66,12 @@ ganttData 实际上是一个二维数组，第一层是以行划分，行里面�
   ]
 }
 ```
+
+## 方法
+
+|方法名称|说明|
+|---|---|
+|computedViewParticleSize|计算视图颗粒度大小，比如一开始进入，甘特图并未展示，之后展示的时候需要计算颗粒度大小|
 
 ## Events
 

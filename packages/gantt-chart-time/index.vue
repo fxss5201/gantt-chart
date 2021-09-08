@@ -117,6 +117,11 @@ export default {
     isDebugger: {
       type: Boolean,
       default: false
+    },
+    // 初始化的时候计算颗粒度大小
+    initComputed: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -172,10 +177,11 @@ export default {
   watch: {
     ganttData: {
       handler (val) {
+        this.isDebugger && console.log('index传入参数', JSON.parse(JSON.stringify(val)))
+        if (!val.length) return false
         // 避免内部数据变更影响外部数据，所以深拷贝
         this.currentArea = this.timeRangesDay(this.startDate, this.currentTime)
         const data = cloneDeep(val)
-        this.isDebugger && console.log('index传入参数', JSON.parse(JSON.stringify(val)))
         this.viewData = this.createViewData(data)
       },
       immediate: true,
@@ -205,9 +211,9 @@ export default {
     this.currentArea = this.timeRangesDay(this.startDate, this.currentTime)
   },
   mounted () {
-    const ganttClientWidth = this.$refs.bodyContent.clientWidth
-    this.viewParticleSize.width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
-    this.maxColumnParticleSize = (ganttClientWidth / this.viewParticleSize.minWidth).toFixed(2) * 1
+    if (this.initComputed) {
+      this.computedViewParticleSize()
+    }
 
     this.mousewheelFunction = (event) => {
       if (event.ctrlKey) {
@@ -222,11 +228,20 @@ export default {
     }
     // 添加按住 ctrl 键缩放
     document.querySelector('#ganttViewBox').addEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
+    window.addEventListener('resize', this.computedViewParticleSize, false)
   },
   beforeDestroy () {
     document.querySelector('#ganttViewBox').removeEventListener(this.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.mousewheelFunction, false)
+    window.removeEventListener('resize', this.computedViewParticleSize, false)
   },
   methods: {
+    // 计算视图颗粒度
+    computedViewParticleSize () {
+      const ganttClientWidth = this.$refs.bodyContent.clientWidth
+      const width = (ganttClientWidth / this.defaultColumnParticleSize).toFixed(2) * 1
+      this.viewParticleSize.width = width > this.viewParticleSize.minWidth ? width : this.viewParticleSize.minWidth
+      this.maxColumnParticleSize = (ganttClientWidth / this.viewParticleSize.minWidth).toFixed(2) * 1
+    },
     // 界面缩放
     viewScale (val) {
       if (val === 'reduce') {

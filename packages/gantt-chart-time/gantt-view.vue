@@ -299,9 +299,13 @@ export default {
       display: flex;
       align-items: stretch;
       .background-column {
+        border-left: 1px dashed #dcdfe6;
         &.is-weekend {
           background-color: #f5f5f5;
         }
+      }
+      .background-column:nth-child(1) {
+        border-left: 0;
       }
     }
     .gantt-view-content {
