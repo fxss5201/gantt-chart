@@ -435,8 +435,6 @@ export default {
   }
   .gantt-progress-dot {
     margin-left: 3px;
-    display: inline-block;
-    vertical-align: middle;
     width: 10px;
     height: 10px;
     border: 3px solid transparent;
@@ -445,18 +443,17 @@ export default {
   }
   .gantt-progress-title {
     box-sizing: border-box;
-    display: inline-block;
-    vertical-align: middle;
-    height: 100%;
     max-width: 100%;
     padding: 0 5px;
+    font-size: 12px;
+    line-height: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .gantt-progress-done {
-    display: table-cell;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     height: 90%;
     background-color: #358efe;
     border-radius: 100px;

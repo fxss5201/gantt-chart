@@ -73,6 +73,7 @@ ganttData 实际上是一个二维数组，第一层是以行划分，行里面�
 |---|---|
 |computedViewParticleSize|计算视图颗粒度大小，比如一开始进入，甘特图并未展示，之后展示的时候需要计算颗粒度大小|
 |bindMousewheelScale|在甘特图区域增加 ctrl+鼠标滚轮 缩放|
+|scrollCurrentInview|将今天日期移到左侧三分之一处|
 
 ## Events
 
