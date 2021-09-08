@@ -194,7 +194,8 @@ export default {
     },
     viewData: {
       handler (val) {
-        this.viewData = this.createViewData(val)
+        const data = cloneDeep(val)
+        this.viewData = this.createViewData(data)
       },
       deep: true
     },
@@ -340,6 +341,7 @@ export default {
 
     // 生成渲染图所需要的数据
     createViewData (val) {
+      if (!val.length) return []
       val.forEach((item) => {
         if (item.list && item.list.length) {
           item.list.forEach((element, index, array) => {
