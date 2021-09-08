@@ -418,6 +418,9 @@ export default {
     setTimeout(() => {
       this.startDate = '2021-06-10'
     })
+    // setTimeout(() => {
+    //   this.ganttData = []
+    // }, 5000)
   },
   methods: {
     sizeChange (obj) {

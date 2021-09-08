@@ -184,19 +184,15 @@ export default {
     ganttData: {
       handler (val) {
         this.isDebugger && console.log('index传入参数', JSON.parse(JSON.stringify(val)))
-        if (!val.length) return false
-        // 避免内部数据变更影响外部数据，所以深拷贝
-        const data = cloneDeep(val)
-        this.viewData = this.createViewData(data)
+        if (!val.length) {
+          this.viewData = []
+        } else {
+          // 避免内部数据变更影响外部数据，所以深拷贝
+          const data = cloneDeep(val)
+          this.viewData = this.createViewData(data)
+        }
       },
       immediate: true,
-      deep: true
-    },
-    viewData: {
-      handler (val) {
-        const data = cloneDeep(val)
-        this.viewData = this.createViewData(data)
-      },
       deep: true
     },
     scrollInfo: {
@@ -333,6 +329,7 @@ export default {
           }
         }
       }
+      this.viewData = this.createViewData(cloneDeep(this.viewData))
     },
     progressClick (obj) {
       this.$emit('progressClick', obj)

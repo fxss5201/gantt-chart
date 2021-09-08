@@ -108,7 +108,8 @@ export default {
       currentX: 0,
       currentBtn: 'right',
 
-      timeout: null
+      timeout: null,
+      isClick: true
     }
   },
   computed: {
@@ -240,7 +241,7 @@ export default {
   },
   methods: {
     progressClick () {
-      this.$emit('progressClick', this.progressData)
+      this.isClick && this.$emit('progressClick', this.progressData)
     },
     progressMouseEnter () {
       this.btnShow = true
@@ -267,6 +268,7 @@ export default {
     },
     onButtonDown (event) {
       event.preventDefault()
+      this.isClick = false
       this.onDragStart(event)
       if (this.currentBtn === 'all') {
         this.progressDraggable = true
@@ -278,6 +280,7 @@ export default {
       window.addEventListener('contextmenu', this.onDragEnd)
     },
     onDragStart (event) {
+      this.isClick = false
       this.btnShow = true
 
       this.dragging = true
@@ -287,6 +290,7 @@ export default {
       this.startX = event.clientX
     },
     onDragging (event) {
+      this.isClick = false
       this.btnShow = true
 
       if (this.dragging) {
@@ -409,6 +413,9 @@ export default {
         window.removeEventListener('mouseup', this.onDragEnd)
         window.removeEventListener('touchend', this.onDragEnd)
         window.removeEventListener('contextmenu', this.onDragEnd)
+        setTimeout(() => {
+          this.isClick = true
+        })
       }
     }
   }
