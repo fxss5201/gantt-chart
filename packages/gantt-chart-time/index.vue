@@ -146,8 +146,6 @@ export default {
         scrollTop: 0
       },
 
-      currentArea: 0,
-
       // 点击头部今天左右按钮一次滚动的距离
       scrollViewRange: 14,
 
@@ -177,6 +175,9 @@ export default {
     },
     currentTimeObj () {
       return this.timeStringToObject(this.currentTime)
+    },
+    currentArea () {
+      return this.timeRangesDay(this.startDate, this.currentTime)
     }
   },
   watch: {
@@ -185,7 +186,6 @@ export default {
         this.isDebugger && console.log('index传入参数', JSON.parse(JSON.stringify(val)))
         if (!val.length) return false
         // 避免内部数据变更影响外部数据，所以深拷贝
-        this.currentArea = this.timeRangesDay(this.startDate, this.currentTime)
         const data = cloneDeep(val)
         this.viewData = this.createViewData(data)
       },
@@ -211,9 +211,6 @@ export default {
       },
       deep: true
     }
-  },
-  created () {
-    this.currentArea = this.timeRangesDay(this.startDate, this.currentTime)
   },
   mounted () {
     if (this.initComputed) {

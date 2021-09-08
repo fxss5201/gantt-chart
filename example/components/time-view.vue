@@ -1,6 +1,6 @@
 <template>
   <div>
-    <gantt-chart-time :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" startDate="2021-06-01" @sizeChange="sizeChange" @progressClick="progressClick">
+    <gantt-chart-time :ganttData="ganttData" :isDebugger="true" currentTime="2021-07-01" :startDate="startDate" @sizeChange="sizeChange" @progressClick="progressClick">
       <template v-slot:headerSelect>
         <div class="header-select">
           <div class="select-title">生产机台</div>
@@ -19,6 +19,7 @@ export default {
   name: 'timeView',
   data () {
     return {
+      startDate: '2021-06-01',
       options: [
         {
           value: '1',
@@ -414,6 +415,9 @@ export default {
   },
   created () {
     console.log(this.timeRangesDay('2021-06-25', '2021-06-28'))
+    setTimeout(() => {
+      this.startDate = '2021-06-10'
+    })
   },
   methods: {
     sizeChange (obj) {
