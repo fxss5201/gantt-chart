@@ -257,6 +257,9 @@ export default {
     },
     // 界面缩放
     viewScale (val) {
+      if (!this.maxColumnParticleSize) {
+        this.computedViewParticleSize()
+      }
       if (val === 'reduce') {
         this.defaultColumnParticleSize += 2
         if (this.defaultColumnParticleSize > this.maxColumnParticleSize) {
