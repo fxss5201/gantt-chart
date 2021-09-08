@@ -1,10 +1,10 @@
 <template>
   <div :style="{ height }" class="gantt-chart-box">
     <div class="gantt-header clearfix">
-      <div class="gantt-side">
+      <div :style="{ width: sideWidth }" class="gantt-side">
         <slot name="headerSelect"></slot>
       </div>
-      <div class="header-content">
+      <div :style="{ marginLeft: sideWidth }" class="header-content">
         <gantt-header
           :viewDateData="viewDateData"
           :currentTimeObj="currentTimeObj"
@@ -18,12 +18,12 @@
       </div>
     </div>
     <div class="gantt-body clearfix">
-      <div class="gantt-side" ref="ganttSide">
+      <div :style="{ width: sideWidth }" class="gantt-side" ref="ganttSide">
         <div v-for="item in sideNameList" :key="item.rowId" class="gantt-side-name" :style="{ height: `${viewParticleSize.height}px`, lineHeight: `${viewParticleSize.height}px` }">
           <gantt-side-item :itemData="item"></gantt-side-item>
         </div>
       </div>
-      <div class="body-content" ref="bodyContent" id="ganttViewBox">
+      <div :style="{ marginLeft: sideWidth }" class="body-content" ref="bodyContent" id="ganttViewBox">
         <gantt-view
           ref="ganttView"
           :isDraggable="isDraggable"
@@ -126,6 +126,11 @@ export default {
     initComputed: {
       type: Boolean,
       default: true
+    },
+    // 左侧宽度
+    sideWidth: {
+      type: String,
+      default: '180px'
     }
   },
   data () {
@@ -503,7 +508,6 @@ export default {
     overflow: hidden;
   }
   .header-content {
-    margin-left: 130px;
     height: 100%;
   }
 }
@@ -517,14 +521,12 @@ export default {
     padding-bottom: 17px;
   }
   .body-content {
-    margin-left: 130px;
     height: 100%;
     overflow: hidden;
   }
 }
 .gantt-side {
   float: left;
-  width: 130px;
   border-right: 1px solid #dcdfe6;
   .gantt-side-name {
     text-align: center;

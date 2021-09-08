@@ -25,6 +25,7 @@ Vue.use(ganttChartTime)
 |stepSlice|在甘特图中，每次移动、拖动的时候占用多少片段|Number|--|24|
 |isDebugger|是否开启数据打印，方便数据纠错|Boolean|--|false|
 |initComputed|初始化的时候是否计算视图颗粒度的大小|Boolean|--|true|
+|sideWidth|左侧宽度|String|--|180px|
 
 ### ganttData 中的参数对应的含义
 

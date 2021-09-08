@@ -448,7 +448,7 @@ export default {
 .header-select {
   padding: 10px;
   text-align: center;
-  width: 130px;
+  width: 180px;
   .select-title {
     margin-top: 4px;
     margin-bottom: 12px;
