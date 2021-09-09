@@ -43,5 +43,6 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  border-bottom: 1px solid #dcdfe6;
 }
 </style>

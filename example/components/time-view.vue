@@ -396,7 +396,7 @@ export default {
                 secondaryColor: '#0f0'
               },
               total: 1000,
-              done: 300,
+              done: 3,
               unit: 'kg',
               doStatus: 0,
               style: {

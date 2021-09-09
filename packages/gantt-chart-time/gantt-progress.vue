@@ -18,19 +18,14 @@
     @mouseenter="progressMouseEnter"
     @mouseleave="progressMouseLeave"
     @click="progressClick">
-    <template v-if="isNotNowDoing">
-      <div v-if="progress.isShowDot && progress.dot" class="gantt-progress-dot" :style="{ borderColor: progress.dot.secondaryColor || progress.dot.mainColor, backgroundColor: progress.dot.mainColor }"></div>
-      <qb-tooltip effect="light" :content="progressTitle" placement="top-start" :disabled="progressTitleDisabled">
-        <div ref="progressTitle" class="gantt-progress-title">{{ progressTitle }}</div>
-      </qb-tooltip>
-    </template>
-    <!-- 处于当前正处理的阶段 -->
-    <div v-else class="gantt-progress-done" :style="{ width: doneWidth, borderColor: progress.style.innerStyle.borderColor, backgroundColor: progress.style.innerStyle.backgroundColor }">
+    <div class="dot-title-box">
       <div v-if="progress.isShowDot && progress.dot" class="gantt-progress-dot" :style="{ borderColor: progress.dot.secondaryColor || progress.dot.mainColor, backgroundColor: progress.dot.mainColor }"></div>
       <qb-tooltip effect="light" :content="progressTitle" placement="top-start" :disabled="progressTitleDisabled">
         <div ref="progressTitle" class="gantt-progress-title">{{ progressTitle }}</div>
       </qb-tooltip>
     </div>
+    <!-- 处于当前正处理的阶段 -->
+    <div v-if="isNowDoing" class="gantt-progress-done" :style="{ width: doneWidth, borderColor: progress.style.innerStyle.borderColor, backgroundColor: progress.style.innerStyle.backgroundColor }"></div>
 
     <!-- 左侧的拖拽图标 -->
     <div v-show="isShowLeftBtn && btnShow" @mouseenter.stop="handleMouseEnter('left')" @mouseleave.stop="handleMouseLeave('left')" @mousedown.stop="onButtonDown" @touchstart.stop="onButtonDown" :class="{ hover: hovering, dragging: dragging }" class="arrow-left-btn"></div>
@@ -131,8 +126,8 @@ export default {
     },
 
     // 非当前进行中
-    isNotNowDoing () {
-      return [-1, 1].includes(this.progress.doStatus)
+    isNowDoing () {
+      return [0].includes(this.progress.doStatus)
     },
     // 是否显示右侧拖拽图标
     isShowRightBtn () {
@@ -440,6 +435,16 @@ export default {
       border-bottom-left-radius: 0;
     }
   }
+  .dot-title-box {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+  }
   .gantt-progress-dot {
     margin-left: 3px;
     width: 10px;
@@ -453,7 +458,6 @@ export default {
     max-width: 100%;
     padding: 0 5px;
     font-size: 12px;
-    line-height: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -467,9 +471,8 @@ export default {
     box-sizing: border-box;
     border: 1px solid #358efe;
     color: #fff;
-    .gantt-progress-title {
-      max-width: calc(100% - 15px);
-    }
+    position: absolute;
+    z-index: 1;
   }
   .arrow-left-btn,
   .arrow-right-btn {
@@ -494,17 +497,16 @@ export default {
   .arrow-all-btn {
     position: absolute;
     top: 10px;
-    left: 50%;
+    left: 10%;
+    right: 10%;
     z-index: 100;
-    margin-left: -10px;
-    width: 20px;
     height: 20px;
     text-align: center;
     line-height: 20px;
     font-size: 16px;
     cursor: move;
-    background-color: #fff;
-    border: 1px solid #8c8d90;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 1px solid #8c8d905e;
     border-radius: 3px;
   }
 }
